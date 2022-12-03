@@ -1,0 +1,96 @@
+/*Part 1 of Assignment II*/
+
+#include "M5Atom.h"
+
+bool ledstrobestate = false; //Boolean which decides whether the matrix will be off(black) or a color in order to create the strobe or blink
+unsigned long lastms = 0; //Stores the last time the LEDs switched states or colors
+const unsigned long strobeinterval = 100; //The strobe interval (100 ms) could be edited in order to change how often the leds blink
+
+
+void setup()
+{
+    M5.begin(true, false, true);
+}
+
+uint8_t modenumber = 0;
+
+void loop()
+{
+
+        unsigned long currentms = millis(); //Stores the current time the program has been running for in milliseconds
+        
+        //If the button is pressed change modes
+        if (M5.Btn.wasPressed())
+        {
+            modenumber++;
+        }
+
+    
+        switch (modenumber)
+        {
+          
+          case 0:
+              M5.dis.fillpix(0x000000); //Fill LED display with black
+              break;
+              
+          case 1:
+              //Once the strobe interval has passed, if the matrix is currently all black then change it to red and vice versa
+              if (currentms - lastms >= strobeinterval)
+              {
+                
+                if (ledstrobestate == false)
+                {
+                  M5.dis.fillpix(0x00FF00);
+                  ledstrobestate = true;
+                }
+                
+                else
+                {
+                  M5.dis.fillpix(0x000000);
+                  ledstrobestate = false;
+                }
+
+                lastms = currentms; //Update the last time the LEDs changed color
+                
+              }
+         
+              break;  
+              
+          case 2:
+          
+              //Once the strobe interval has passed, if the matrix is currently all black then change it to white and vice versa
+              if (currentms - lastms >= strobeinterval)
+              {
+                
+                if (ledstrobestate == false)
+                {
+                  M5.dis.fillpix(0xFFFFFF);
+                  ledstrobestate = true;
+                }
+                
+                else
+                {
+                  M5.dis.fillpix(0x000000);
+                  ledstrobestate = false;
+                }
+
+                lastms = currentms; //Update the last time the LEDs changed color
+                
+              }
+         
+              break; 
+              
+              
+          default:
+              break;
+            
+        }
+        
+        //Cycle back to first mode after last mode
+        if (modenumber >= 3)
+        {
+            modenumber = 0;
+        }
+
+        M5.update();
+}

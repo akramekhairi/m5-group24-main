@@ -1,0 +1,34 @@
+#include "M5Atom.h"
+
+void setup() {
+  M5.begin(true, false, true);
+  M5.IMU.Init();
+  Serial.begin(115200);
+
+}
+
+float accX = 0, accY = 0, accZ = 0, avgX = 0;
+int numOfDataPts = 10;
+int tiltDirection = 0; //device in the centre
+
+void loop() {
+  M5.IMU.getAccelData(&accX, &accY, &accZ);
+  avgX = ( ((numOfDataPts - 1) * avgX) +accX ) /numOfDataPts; //modified moving average
+  if (abs(avgX) >= 0.5)
+  {
+    if (avgX < -0.5) {
+      tiltDirection = 1; //tilt left
+      M5.dis.fillpix(0x00FF00);
+    }
+    if (avgX > 0.5) {
+      tiltDirection = 2; //tilt right
+      M5.dis.fillpix(0xFFFFFF);
+    }
+  }
+
+  else 
+  {
+    M5.dis.fillpix(0x000000);
+  }
+  M5.update();
+}
